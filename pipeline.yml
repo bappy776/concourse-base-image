@@ -1,0 +1,13 @@
+jobs:
+  - name: base-image-job
+    public: true
+    plan:
+      - task: base-image-task
+        config:
+          platform: linux
+          image_resource:
+            type: base-image
+            source: {bappy776:base-image}
+          run:
+            path: pwd
+            
