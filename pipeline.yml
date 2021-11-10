@@ -1,42 +1,42 @@
-groups:
-- name: main
-  jobs:
-  - base-image-job
-
-resource_types:
-- name: base-image-resource
-  type: docker-image
-  source:
-    repository: bappy776/base-image
-    tag: latest
-
+---
 resources:
-- name: slack
-  type: slack-notification
+# The repo with our Dockerfile
+- name: concourse-base-image
+  type: git
+  icon: github
   source:
-    url: {{cfee_audit_slack_url}}
-- name: daily-10am
-  type: cron-resource
+    uri: https://github.com/bappy776/concourse-base-image.git
+    branch: master
+
+# Where we will push the image to
+- name: base-image
+  type: registry-image
+  icon: docker
   source:
-    expression: "0 10 * * *"
-    location: "America/New_York"
-    access_token: {{cfaas_github_token}}
+    repository: ((image-repo-name))/base-image
+    username: ((registry-username))
+    password: ((registry-password))
 
 jobs:
-  - name: base-image-job
-    public: true
-    plan:
-    - in_parallel:
-      - get: daily-10am
-        trigger: true
-      - get: base
-      - get: slack
-    - task: base-image-task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {bappy776:base-image}
-          run:
-            path: pwd
-            
+- name: build-and-push
+  plan:
+  - get: concourse-base-image
+  - task: build-task-image
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: bappy776/base-image
+      inputs:
+      - name: concourse-base-image
+      outputs:
+      - name: image
+      params:
+        CONTEXT: concourse-base-image
+      run:
+        path: build
+  - put: base-image
+    params:
+      image: image/image.tar

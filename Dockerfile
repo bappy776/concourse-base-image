@@ -5,9 +5,8 @@ FROM alpine:3.12
 RUN apk update && apk add vim curl wget nginx 
 
 # Install Docker
-RUN wget https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.12.1~ce-0~debian_amd64.deb
-RUN dpkg -i docker-ce_17.12.1~ce-0~debian_amd64.deb
-RUN cp /usr/bin/docker /usr/local/bin/
+RUN apk add --update docker openrc
+RUN rc-update add docker boot
 
 # Install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
