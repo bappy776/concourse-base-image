@@ -4,8 +4,17 @@ FROM alpine:3.12
 # Installing Package we need 
 RUN apk update && apk add vim curl wget nginx 
 
-RUN apk add --update docker openrc
-RUN rc-update add docker boot
+# Install Docker
+RUN wget https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.12.1~ce-0~debian_amd64.deb
+RUN dpkg -i docker-ce_17.12.1~ce-0~debian_amd64.deb
+RUN cp /usr/bin/docker /usr/local/bin/
+
+# Install kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin/kubectl
+
+# Install fly cli 
 RUN apk update \
   && apk add --no-cache git bash gzip tar curl ca-certificates openssl \
   && update-ca-certificates \
