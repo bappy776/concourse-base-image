@@ -6,7 +6,7 @@ resources:
   icon: github
   source:
     uri: https://github.com/bappy776/concourse-base-image.git
-    branch: master
+    branch: main
 
 # Where we will push the image to
 - name: base-image
